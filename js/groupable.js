@@ -50,30 +50,30 @@
 
                 // insert blockAreas boundaries
                 var groupBoundElements = [];
-                $.each(groups, function(groupKey, groupName) {
+                $.each(groups, function(groupSort, group) {
                     //console.log(index); console.log(value);
                     //var colSpan = $('tr',self).first().find('td').length;
                     //var colSpan = self.siblings('thead').find('tr.ss-gridfield-title-header th, tr.sortable-header th').length;
                     var th_tds_list = self.siblings('thead').find('tr').map(function() {
                         return $(this).find('th').length;
                     }).get();
-                    
+
                     // ▾ / ▼ / ↓
                     var boundEl = $('<tr class="groupable-bound"><td>↓</td>'
                         +'<td colspan="'+ (Math.max.apply(null, th_tds_list)-1 ) +'">'+ self.getGroupRole() +': <strong>'
-                        +(groupName || self.getNoGroupName())+'</strong></td></tr>');
-                    boundEl.data('groupKey', groupKey);
-                    groupBoundElements[groupKey] = boundEl;
+                        +(group.Title || self.getNoGroupName())+'</strong></td></tr>');
+                    boundEl.data('groupKey', group.ID);
+                    groupBoundElements[group.ID] = boundEl;
                     $(self).append(boundEl); //before(bound);
                 });
                 // and put blocks in order below boundaries
                 jQuery.fn.reverseOrder = [].reverse; // small reverse plugin
                 self.getGridField().getItems().reverseOrder().each(function(){
                     //var myGroup = $('.col-'+ self.getItemGroupField() +' select',this).val() || 'none';
-                    var myGroup = $('.col-reorder',this).data('groupable-group') || 'none';
+                    var myGroup = $('.col-reorder',this).data('groupable-group') || '0';
                     $(this).insertAfter( groupBoundElements[myGroup] );
                 });
-                
+
                 // hide the group columns (if present)
                 $('.col-action_SetOrder'+self.getItemGroupField()+', .col-'+self.getItemGroupField()).hide();
 
@@ -97,6 +97,12 @@
                 // set correct area on row/item areaselect
                 var group = ui.item.prevAll('.groupable-bound').first().data('groupKey');
                 $('.col-'+ this.getItemGroupField() +' select',ui.item).val(group);
+
+                var originalGroup = event.srcElement.parentElement.parentElement.dataset.groupableGroup;
+                originalGroup = parseInt(originalGroup);
+
+                // If not allowed to move between groups
+                group = originalGroup;
 
                 // save group on object/rel
 
